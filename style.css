@@ -1,0 +1,676 @@
+/* Base & Reset */
+:root {
+  /* フォント指定の変数化 */
+  --font-en: "Oswald", sans-serif;
+  --font-jp: "Noto Sans JP", sans-serif;
+  --primary: #d90013;
+  --dark: #121212;
+  --gray: #f8f9fa;
+  --white: #ffffff;
+  --text: #333333;
+}
+
+/* 見出し全体のスタイル */
+h1,
+h2,
+h3,
+h4,
+.hero-label {
+  font-family: var(--font-jp);
+  font-weight: 900; /* 極太 */
+  line-height: 1.2;
+  letter-spacing: 0.05em;
+  /* text-transform: uppercase; 英語は自動で大文字に */
+}
+
+/* ヒーローエリアの英語テキスト */
+.category,
+.hero-label {
+  font-family: var(--font-en);
+  font-weight: 700;
+}
+
+/* メインコピーの調整 */
+.hero-content h1 {
+  font-size: clamp(2.5rem, 5vw, 4.5rem); /* 画面幅に合わせて伸縮 */
+  margin-bottom: 20px;
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8); /* 視認性確保 */
+}
+
+/* セクションタイトルの装飾 */
+.section-title {
+  font-size: 2.2rem;
+  color: #111;
+}
+
+/* パートナーシップエリア（カーボン調）内の文字 */
+.bg-carbon .section-title,
+.bg-carbon h4 {
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.benefit-card h4 {
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+}
+
+/* フォームのラベル */
+.form-group label {
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+}
+
+.accent-word {
+  /* font-family: 'Yuji Boku', serif; */
+  color: var(--primary);
+  font-size: 2.2em; /* 圧倒的に大きく */
+  display: inline-block;
+
+  /* 勢いを出すための3方向の調整 */
+  transform: rotate(12deg) scale(1.2) translateY(-0.1em);
+
+  /* 墨が飛び散ったような「かすれ」をドロップシャドウで擬似的に作る */
+  filter: drop-shadow(4px 4px 2px rgba(0, 0, 0, 0.4))
+    drop-shadow(-2px -2px 0px rgba(255, 255, 255, 0.1));
+
+  /* 文字が写真や他の文字に大胆に重なるように調整 */
+  margin-left: 0.1em;
+  margin-right: 0em;
+  z-index: 15;
+  position: relative;
+}
+
+.accent-word {
+  display: inline-block;
+  position: relative;
+  top: 0.2em; /* 少し上に浮かす */
+  color: var(--primary);
+  font-size: 1.4em;
+  font-weight: 900;
+  /* 英語の『TOP』をルビのように添えるとかっこいい */
+}
+.accent-word::before {
+  content: "TOP";
+  position: absolute;
+  top: -0.2rem;
+  left: 55%;
+  transform: translateX(-50%);
+  font-family: var(--font-en);
+  font-size: 0.85rem;
+  font-weight: bold;
+  letter-spacing: 0.2em;
+  color: var(--primary);
+}
+
+@media (max-width: 768px) {
+  .accent-word {
+    font-size: 1.4em;
+  }
+}
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  line-height: 1.7;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  font-family: var(--font-jp);
+  font-weight: 400;
+  line-height: 1.8;
+  letter-spacing: 0.03em;
+}
+
+.container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.section {
+  padding: 60px 0;
+}
+.section-title {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 40px;
+  position: relative;
+  padding-bottom: 15px;
+}
+.section-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 3px;
+  background: var(--primary);
+}
+
+/* Utils */
+.bg-light {
+  background: var(--gray);
+}
+.bg-dark {
+  background: var(--dark);
+}
+.text-white {
+  color: var(--white);
+}
+.text-center {
+  text-align: center;
+}
+
+/* Grid System */
+.grid {
+  display: grid;
+  gap: 20px;
+}
+
+/* Hero */
+.hero {
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
+    url("hero.jpg") center/cover no-repeat;
+  height: 80vh;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  color: var(--white);
+  text-align: center;
+}
+.hero h1 {
+  font-size: 3rem;
+  margin: 10px 0;
+}
+.hero-split {
+  display: flex;
+  height: 85vh;
+  position: relative;
+  overflow: hidden;
+  background: #000;
+}
+.hero-split::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* 中央に向かって暗くなるグラデーション */
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.6) 0%, transparent 70%);
+  z-index: 5;
+  pointer-events: none; /* 下にあるボタンをクリックできるようにする */
+}
+
+.hero-item {
+  flex: 1;
+  background-size: cover;
+  /* 顔が上の方にあることを想定し、上から10%の位置を基準にする */
+  background-position: center 10%;
+  position: relative;
+  overflow: hidden;
+  height: 85vh; /* PCでは全体の高さを指定 */
+}
+
+/* スマホ・縦並び時の修正 */
+@media (max-width: 768px) {
+  .hero-split {
+    flex-direction: column; /* 上下並びに変更 */
+    height: auto; /* 全体の高さ固定を解除 */
+  }
+
+  .hero-item {
+    /* ここがポイント：上下に並んだ際、1枚あたり最低でも45vh（画面の半分弱）の
+           高さを確保することで、横長になりすぎて顔が見切れるのを防ぎます */
+    height: 50vh;
+    width: 100%;
+    /* スマホでも顔を優先（必要に応じて 0% や 5% に調整してください） */
+    background-position: center 0%;
+  }
+
+  .haruka-bg {
+    clip-path: none; /* スマホでは斜めカットを解除すると見やすくなります */
+  }
+
+  .kanoka-bg {
+    margin-left: 0;
+    margin-top: -20px; /* 少し重ねる程度に */
+  }
+
+  .hero-content {
+    /* 写真の上に文字が重なりすぎて顔が隠れないよう、少し位置を下げる調整 */
+    top: 60%;
+  }
+}
+/* 
+.hero-item {
+    flex: 1;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+} */
+
+/* 画像の上に暗い膜を張る */
+/* 0.4を大きくするとより暗くなります */
+/* .hero-item::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4); 
+    z-index: 1;
+} */
+
+/* 文字が膜より上に来るように調整 */
+.hero-content {
+  z-index: 10;
+}
+/* 画像パスの設定 */
+.haruka-bg {
+  background-image: url("images/haruka.jpg");
+}
+.kanoka-bg {
+  background-image: url("images/kanoka.jpg");
+}
+
+/* 左側の写真（遥香さん）に斜めの切り込みを入れる */
+.haruka-bg {
+  clip-path: polygon(0 0, 100% 0, 90% 100%, 0% 100%);
+  z-index: 2; /* 彼香さんの写真より少し上に重ねる */
+}
+
+/* 右側の写真（彼香さん）を少し左に寄せて重なりを作る */
+.kanoka-bg {
+  margin-left: -5%;
+  z-index: 1;
+}
+
+/* 選手名ラベルの装飾 */
+.hero-label {
+  position: absolute;
+  bottom: 30px;
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.1em;
+}
+.haruka-bg .hero-label {
+  left: 30px;
+}
+.kanoka-bg .hero-label {
+  right: 30px;
+}
+
+/* スマホ対応：縦に並べる（重なりを解除） */
+@media (max-width: 768px) {
+  .hero-split {
+    flex-direction: column;
+    height: 100vh;
+  }
+  .haruka-bg {
+    clip-path: none;
+    z-index: 1;
+  }
+  .kanoka-bg {
+    margin-left: 0;
+    margin-top: -10%; /* スマホでも少し重ねると躍動感が出ます */
+  }
+  .hero-label {
+    font-size: 1rem;
+    bottom: 10px;
+  }
+}
+
+.hero-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  width: 100%;
+  z-index: 10;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+}
+
+/* スマホ対応：縦に並べる */
+@media (max-width: 768px) {
+  .hero-split {
+    flex-direction: column;
+    height: 100vh; /* スマホでは全画面で見せる */
+  }
+  .kanoka-bg {
+    clip-path: none;
+  }
+  .haruka-bg {
+    margin-left: 0;
+    margin-top: -10%; /* 少し重ねて躍動感を出す */
+  }
+}
+.category {
+  color: var(--primary);
+  font-weight: bold;
+  letter-spacing: 0.2em;
+}
+.tagline {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 15px 35px;
+  background: var(--primary);
+  color: var(--white);
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: 0.3s ease;
+}
+.btn:hover {
+  background: #b00010;
+  transform: translateY(-2px);
+}
+.btn-large {
+  font-size: 1.25rem;
+}
+
+/* Profile Cards */
+.card {
+  background: var(--white);
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.results {
+  padding-left: 20px;
+  margin-top: 15px;
+  font-size: 0.9rem;
+}
+
+/* Video Responsive */
+.video-wrapper {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  margin-top: 30px;
+}
+.video-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Partnership section extra */
+.support-item {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 25px;
+  border-top: 3px solid var(--primary);
+}
+.benefits-box {
+  margin-top: 40px;
+  background: var(--white);
+  color: var(--text);
+  padding: 30px;
+  border-radius: 8px;
+}
+
+/* カーボン調背景のスタイル */
+/* 斜めカーボン調（綾織風）背景 */
+.bg-carbon {
+  background-color: #1a1a1a;
+  background-image: linear-gradient(
+      45deg,
+      #111 25%,
+      transparent 25%,
+      transparent 75%,
+      #111 75%,
+      #111
+    ),
+    linear-gradient(
+      45deg,
+      #111 25%,
+      transparent 25%,
+      transparent 75%,
+      #111 75%,
+      #111
+    );
+  background-size: 8px 8px; /* この数値を大きくすると網目が大きくなります */
+  background-position: 0 0, 4px 4px;
+  position: relative;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+}
+
+/* 背景をよりリアルにするためのオーバーレイ（薄い光沢） */
+.bg-carbon::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  pointer-events: none;
+}
+
+/* パートナーシップエリア内の要素の重なりを調整 */
+.bg-carbon .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* カーボン背景上のカードをより際立たせるための調整 */
+.benefit-card {
+  background: rgba(30, 30, 30, 0.7); /* 暗めの半透明 */
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Benefit Section Styles */
+.benefit-grid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin-top: 50px;
+}
+
+.benefit-card {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 40px 25px;
+  border-radius: 12px;
+  text-align: center;
+  transition: transform 0.3s ease;
+  border-bottom: 4px solid var(--primary);
+}
+
+.benefit-card:hover {
+  transform: translateY(-10px);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary);
+}
+
+.benefit-card .icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.benefit-card h4 {
+  font-size: 1.25rem;
+  margin-bottom: 15px;
+  color: var(--primary);
+}
+
+.consultation-box {
+  margin-top: 60px;
+  background: var(--white);
+  color: var(--text);
+  padding: 40px;
+  border-radius: 12px;
+}
+
+.consultation-box {
+  margin-top: 60px;
+  background: rgba(255, 255, 255, 0.95); /* 少しだけ透明にして質感を合わせる */
+  color: var(--text);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.consultation-box h3 {
+  color: var(--primary);
+  margin-top: 0;
+}
+
+.consult-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 10px;
+}
+
+.consult-list li {
+  padding-left: 25px;
+  position: relative;
+}
+
+.consult-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--primary);
+  font-weight: bold;
+}
+
+#schedule {
+  background: #fff;
+  padding: 100px 0;
+}
+
+.schedule-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  margin-top: 50px;
+}
+
+.schedule-box {
+  padding: 40px;
+  border: 1px solid #eee;
+  background: #fdfdfd;
+}
+
+.schedule-box.highlight {
+  background: #000;
+  color: #fff;
+  border: none;
+  position: relative;
+}
+
+.schedule-h3 {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 30px;
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.schedule-h3 small {
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.activity-list,
+.plan-list {
+  list-style: none;
+  padding: 0;
+}
+
+.activity-list li,
+.plan-list li {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  /* font-weight: bold; */
+}
+
+.plan-list li {
+  border-bottom: 1px solid #333;
+}
+
+/* 確定と未定の出し分け */
+.confirmed::before {
+  content: "■";
+  color: var(--primary);
+  margin-right: 10px;
+}
+
+.pending {
+  color: #888;
+}
+
+.pending::before {
+  content: "□";
+  margin-right: 10px;
+}
+
+.pending span {
+  font-size: 0.8rem;
+  margin-left: 10px;
+  background: #333;
+  padding: 2px 8px;
+  border-radius: 3px;
+}
+
+@media (max-width: 768px) {
+  .schedule-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+footer {
+  background: #000;
+  color: #777;
+  padding: 20px 0;
+  font-size: 0.8rem;
+}
+
+/* Responsive Media Queries */
+@media (min-width: 768px) {
+  .section {
+    padding: 100px 0;
+  }
+  .hero h1 {
+    font-size: 4.5rem;
+  }
+  .profile-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .support-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+  .section-title {
+    font-size: 1.6rem;
+  }
+}
