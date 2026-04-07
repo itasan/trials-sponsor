@@ -150,12 +150,12 @@
               <span class="report-card-rider ${report.rider}">${riderLabel}</span>
             </div>
             <div class="report-card-body">
-              <time class="report-card-date">${dateStr}</time>
-              <h3 class="report-card-title">${escapeHtml(report.title)}</h3>
-              <div class="report-card-meta">
-                <span class="report-card-location">${escapeHtml(report.location)}</span>
-                ${report.result ? `<span class="report-card-result">${escapeHtml(report.result)}</span>` : ""}
+              <div class="report-card-meta-top">
+                <time class="report-card-date">${dateStr}</time>
+                ${report.location ? `<span class="report-card-location">${escapeHtml(report.location)}</span>` : ""}
               </div>
+              <h3 class="report-card-title">${escapeHtml(report.title)}</h3>
+              ${report.result ? `<span class="report-card-result">${escapeHtml(report.result)}</span>` : ""}
               ${report.summary ? `<p class="report-card-summary">${escapeHtml(report.summary)}</p>` : ""}
             </div>
           </a>
