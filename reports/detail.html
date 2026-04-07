@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>レポート | 板谷姉妹 自転車トライアル競技</title>
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="reports.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Oswald:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="report-nav">
+      <div class="container nav-inner">
+        <a href="./" class="nav-back">&larr; レポート一覧</a>
+        <span class="nav-title">ACTIVITY REPORTS</span>
+      </div>
+    </nav>
+
+    <div id="detail-loading" class="reports-loading">
+      <div class="spinner"></div>
+      <p>読み込んでいます...</p>
+    </div>
+
+    <div id="detail-error" class="reports-error" hidden>
+      <div class="container text-center">
+        <p>レポートの読み込みに失敗しました。</p>
+        <a href="./" class="btn">一覧に戻る</a>
+      </div>
+    </div>
+
+    <article id="detail-content" hidden>
+      <header class="detail-hero" id="detail-hero">
+        <div class="detail-hero-overlay">
+          <div class="container">
+            <span class="detail-rider" id="detail-rider"></span>
+            <h1 id="detail-title"></h1>
+            <div class="detail-meta">
+              <time id="detail-date"></time>
+              <span id="detail-location"></span>
+              <span class="detail-result" id="detail-result"></span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <section class="section detail-body-section">
+        <div class="container detail-container">
+          <div id="detail-body" class="detail-body"></div>
+
+          <div id="detail-links" class="detail-links" hidden></div>
+
+          <div id="detail-gallery" class="detail-gallery" hidden></div>
+        </div>
+      </section>
+    </article>
+
+    <footer>
+      <div class="container">
+        <p>&copy; 2025 trials-girl.com. All Rights Reserved.</p>
+      </div>
+    </footer>
+
+    <div id="lightbox" class="lightbox" hidden>
+      <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+      <button class="lightbox-prev" onclick="navigateLightbox(-1)">&lsaquo;</button>
+      <button class="lightbox-next" onclick="navigateLightbox(1)">&rsaquo;</button>
+      <img id="lightbox-img" src="" alt="" />
+    </div>
+
+    <script>
+      const CMS_URL = "https://kanoharu-report.trials-girl.com";
+      const COLLECTION = "reports";
+
+      let galleryImages = [];
+      let currentImageIndex = 0;
+
+      async function loadDetail() {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get("id");
+
+        if (!id) {
+          showError();
+          return;
+        }
+
+        try {
+          const fields = "id,date,title,location,rider,result,body,url,cover_image,gallery.directus_files_id";
+          const res = await fetch(
+            `${CMS_URL}/items/${COLLECTION}/${id}?fields=${fields}`
+          );
+          if (!res.ok) throw new Error(res.statusText);
+
+          const json = await res.json();
+          const report = json.data;
+
+          if (!report) {
+            showError();
+            return;
+          }
+
+          renderDetail(report);
+        } catch (e) {
+          console.error("Failed to load detail:", e);
+          showError();
+        }
+      }
+
+      function renderDetail(r) {
+        // Title
+        document.title = `${r.title} | 活動レポート`;
+        document.getElementById("detail-title").textContent = r.title;
+
+        // Rider
+        const riderEl = document.getElementById("detail-rider");
+        riderEl.textContent = getRiderLabel(r.rider);
+        riderEl.className = `detail-rider ${r.rider}`;
+
+        // Date & location
+        document.getElementById("detail-date").textContent = formatDate(r.date);
+        document.getElementById("detail-location").textContent = r.location || "";
+
+        // Result
+        const resultEl = document.getElementById("detail-result");
+        if (r.result) {
+          resultEl.textContent = r.result;
+          resultEl.hidden = false;
+        } else {
+          resultEl.hidden = true;
+        }
+
+        // Cover image
+        if (r.cover_image) {
+          const heroEl = document.getElementById("detail-hero");
+          heroEl.style.backgroundImage = `url(${CMS_URL}/assets/${r.cover_image}?width=1200&quality=80)`;
+        }
+
+        // Body
+        if (r.body) {
+          document.getElementById("detail-body").innerHTML = r.body;
+        }
+
+        // Related URL
+        if (r.url) {
+          const linksEl = document.getElementById("detail-links");
+          linksEl.innerHTML =
+            `<h3 class="links-title">RELATED LINKS</h3>` +
+            `<a href="${escapeAttr(r.url)}" class="detail-link" target="_blank" rel="noopener noreferrer">` +
+            `<span class="detail-link-icon">&#x1F517;</span>` +
+            `<span class="detail-link-url">${escapeHtml(r.url)}</span>` +
+            `<span class="detail-link-arrow">&rarr;</span>` +
+            `</a>`;
+          linksEl.hidden = false;
+        }
+
+        // Gallery
+        if (r.gallery && r.gallery.length > 0) {
+          const galleryEl = document.getElementById("detail-gallery");
+          galleryImages = r.gallery.map((g) => g.directus_files_id);
+
+          galleryEl.innerHTML =
+            `<h3 class="gallery-title">PHOTO GALLERY</h3>` +
+            `<div class="gallery-grid">` +
+            galleryImages
+              .map(
+                (fileId, i) => `
+              <div class="gallery-item" onclick="openLightbox(${i})">
+                <img src="${CMS_URL}/assets/${fileId}?width=400&height=300&fit=cover"
+                     alt="写真 ${i + 1}" loading="lazy" />
+              </div>`
+              )
+              .join("") +
+            `</div>`;
+          galleryEl.hidden = false;
+        }
+
+        // Show content
+        document.getElementById("detail-loading").hidden = true;
+        document.getElementById("detail-content").hidden = false;
+      }
+
+      function showError() {
+        document.getElementById("detail-loading").hidden = true;
+        document.getElementById("detail-error").hidden = false;
+      }
+
+      function formatDate(dateStr) {
+        if (!dateStr) return "";
+        const d = new Date(dateStr);
+        return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+      }
+
+      function getRiderLabel(rider) {
+        const labels = { haruka: "HARUKA", kanoka: "KANOKA", both: "SISTERS" };
+        return labels[rider] || rider;
+      }
+
+      function escapeAttr(str) {
+        if (!str) return "";
+        return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      }
+
+      // Lightbox
+      function openLightbox(index) {
+        currentImageIndex = index;
+        const lb = document.getElementById("lightbox");
+        const img = document.getElementById("lightbox-img");
+        img.src = `${CMS_URL}/assets/${galleryImages[index]}?width=1200&quality=85`;
+        lb.hidden = false;
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeLightbox() {
+        document.getElementById("lightbox").hidden = true;
+        document.body.style.overflow = "";
+      }
+
+      function navigateLightbox(dir) {
+        currentImageIndex =
+          (currentImageIndex + dir + galleryImages.length) % galleryImages.length;
+        const img = document.getElementById("lightbox-img");
+        img.src = `${CMS_URL}/assets/${galleryImages[currentImageIndex]}?width=1200&quality=85`;
+      }
+
+      document.getElementById("lightbox").addEventListener("click", (e) => {
+        if (e.target.id === "lightbox") closeLightbox();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        const lb = document.getElementById("lightbox");
+        if (lb.hidden) return;
+        if (e.key === "Escape") closeLightbox();
+        if (e.key === "ArrowLeft") navigateLightbox(-1);
+        if (e.key === "ArrowRight") navigateLightbox(1);
+      });
+
+      // Init
+      loadDetail();
+    </script>
+  </body>
+</html>

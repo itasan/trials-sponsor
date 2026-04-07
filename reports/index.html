@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>活動レポート | 板谷姉妹 自転車トライアル競技</title>
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="reports.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Oswald:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <nav class="report-nav">
+      <div class="container nav-inner">
+        <a href="../" class="nav-back">&larr; TOP</a>
+        <span class="nav-title">ACTIVITY REPORTS</span>
+      </div>
+    </nav>
+
+    <header class="report-hero">
+      <div class="container">
+        <p class="category">ITADANI SISTERS</p>
+        <h1>活動レポート</h1>
+        <p class="report-hero-sub">大会結果やイベント参加の記録</p>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="container">
+        <div class="report-filters">
+          <button class="filter-btn active" data-filter="all">ALL</button>
+          <button class="filter-btn" data-filter="haruka">HARUKA</button>
+          <button class="filter-btn" data-filter="kanoka">KANOKA</button>
+        </div>
+
+        <div id="reports-list" class="reports-grid">
+          <!-- JS で動的に挿入 -->
+        </div>
+
+        <div id="reports-loading" class="reports-loading">
+          <div class="spinner"></div>
+          <p>レポートを読み込んでいます...</p>
+        </div>
+
+        <div id="reports-empty" class="reports-empty" hidden>
+          <p>レポートはまだありません。</p>
+        </div>
+
+        <div id="reports-error" class="reports-error" hidden>
+          <p>レポートの読み込みに失敗しました。</p>
+          <button class="btn" onclick="loadReports()">再試行</button>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        <p>&copy; 2025 trials-girl.com. All Rights Reserved.</p>
+      </div>
+    </footer>
+
+    <script>
+      const CMS_URL = "https://kanoharu-report.trials-girl.com";
+      const COLLECTION = "reports";
+
+      let allReports = [];
+      let currentFilter = "all";
+
+      async function loadReports() {
+        const list = document.getElementById("reports-list");
+        const loading = document.getElementById("reports-loading");
+        const empty = document.getElementById("reports-empty");
+        const error = document.getElementById("reports-error");
+
+        list.innerHTML = "";
+        loading.hidden = false;
+        empty.hidden = true;
+        error.hidden = true;
+
+        try {
+          const params = new URLSearchParams({
+            "filter[status][_eq]": "published",
+            sort: "-date",
+            fields: "id,date,title,location,rider,result,summary,cover_image",
+          });
+
+          const res = await fetch(
+            `${CMS_URL}/items/${COLLECTION}?${params}`
+          );
+          if (!res.ok) throw new Error(res.statusText);
+
+          const json = await res.json();
+          allReports = json.data || [];
+
+          loading.hidden = true;
+
+          if (allReports.length === 0) {
+            empty.hidden = false;
+            return;
+          }
+
+          renderReports();
+        } catch (e) {
+          console.error("Failed to load reports:", e);
+          loading.hidden = true;
+          error.hidden = false;
+        }
+      }
+
+      function renderReports() {
+        const list = document.getElementById("reports-list");
+        const empty = document.getElementById("reports-empty");
+
+        const filtered =
+          currentFilter === "all"
+            ? allReports
+            : allReports.filter(
+                (r) => r.rider === currentFilter || r.rider === "both"
+              );
+
+        if (filtered.length === 0) {
+          list.innerHTML = "";
+          empty.hidden = false;
+          return;
+        }
+
+        empty.hidden = true;
+        list.innerHTML = filtered.map((r) => createCard(r)).join("");
+      }
+
+      function createCard(report) {
+        const coverUrl = report.cover_image
+          ? `${CMS_URL}/assets/${report.cover_image}?width=600&height=400&fit=cover`
+          : "";
+        const dateStr = formatDate(report.date);
+        const riderLabel = getRiderLabel(report.rider);
+
+        return `
+          <a href="detail.html?id=${report.id}" class="report-card">
+            <div class="report-card-image">
+              ${
+                coverUrl
+                  ? `<img src="${coverUrl}" alt="${escapeHtml(report.title)}" loading="lazy" />`
+                  : `<div class="report-card-noimage">NO IMAGE</div>`
+              }
+              <span class="report-card-rider ${report.rider}">${riderLabel}</span>
+            </div>
+            <div class="report-card-body">
+              <time class="report-card-date">${dateStr}</time>
+              <h3 class="report-card-title">${escapeHtml(report.title)}</h3>
+              <div class="report-card-meta">
+                <span class="report-card-location">${escapeHtml(report.location)}</span>
+                ${report.result ? `<span class="report-card-result">${escapeHtml(report.result)}</span>` : ""}
+              </div>
+              ${report.summary ? `<p class="report-card-summary">${escapeHtml(report.summary)}</p>` : ""}
+            </div>
+          </a>
+        `;
+      }
+
+      function formatDate(dateStr) {
+        if (!dateStr) return "";
+        const d = new Date(dateStr);
+        return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+      }
+
+      function getRiderLabel(rider) {
+        const labels = { haruka: "HARUKA", kanoka: "KANOKA", both: "SISTERS" };
+        return labels[rider] || rider;
+      }
+
+      function escapeHtml(str) {
+        if (!str) return "";
+        const div = document.createElement("div");
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      // Filter buttons
+      document.querySelectorAll(".filter-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelector(".filter-btn.active").classList.remove("active");
+          btn.classList.add("active");
+          currentFilter = btn.dataset.filter;
+          renderReports();
+        });
+      });
+
+      // Init
+      loadReports();
+    </script>
+  </body>
+</html>

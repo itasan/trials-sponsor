@@ -110,6 +110,19 @@
       </div>
     </section>
 
+    <section id="reports" class="section bg-light">
+      <div class="container">
+        <h2 class="section-title">Activity Reports</h2>
+        <div id="top-reports-list" class="top-reports-list"></div>
+        <div id="top-reports-loading" class="top-reports-loading">
+          <p style="color:#999; text-align:center;">読み込み中...</p>
+        </div>
+        <p class="text-center" style="margin-top: 30px;">
+          <a href="reports/" class="btn">すべてのレポートを見る</a>
+        </p>
+      </div>
+    </section>
+
     <section id="schedule" class="section">
       <div class="container">
         <h2 class="section-title">ACTIVITY & SCHEDULE</h2>
@@ -128,15 +141,8 @@
 
           <div class="schedule-box highlight">
             <h3 class="schedule-h3">2026 Schedule <small>今年度予定</small></h3>
-            <ul class="plan-list">
-              <li class="confirmed">全日本選手権大会</li>
-              <li class="confirmed">ヨーロッパ遠征（スペイン）</li>
-              <li class="pending">
-                World Youth Games（スイス）<span>※選考・調整中</span>
-              </li>
-              <li class="pending">
-                World Championships（サウジアラビア）<span>※選考・調整中</span>
-              </li>
+            <ul id="upcoming-events" class="plan-list">
+              <li style="color:#888; text-align:center; border:none;">読み込み中...</li>
             </ul>
           </div>
         </div>
@@ -215,5 +221,240 @@
         <p>&copy; 2025 trials-girl.com. All Rights Reserved.</p>
       </div>
     </footer>
+    <style>
+      .top-reports-list {
+        max-width: 700px;
+        margin: 0 auto;
+      }
+      .top-report-item {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        padding: 14px 0;
+        border-bottom: 1px solid #ddd;
+        text-decoration: none;
+        color: var(--text);
+        transition: background 0.2s;
+      }
+      .top-report-item:first-child {
+        border-top: 1px solid #ddd;
+      }
+      .top-report-item:hover {
+        background: rgba(0,0,0,0.03);
+      }
+      .top-report-date {
+        font-family: var(--font-en);
+        font-size: 0.85rem;
+        color: #999;
+        white-space: nowrap;
+        min-width: 90px;
+      }
+      .top-report-rider {
+        font-family: var(--font-en);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        padding: 2px 8px;
+        color: #fff;
+        white-space: nowrap;
+      }
+      .top-report-rider.haruka { background: var(--primary); }
+      .top-report-rider.kanoka { background: #1a1a1a; }
+      .top-report-rider.both { background: linear-gradient(135deg, var(--primary), #1a1a1a); }
+      .top-report-title {
+        flex: 1;
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+      .top-report-result {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--primary);
+        white-space: nowrap;
+      }
+      .top-reports-loading { text-align: center; }
+
+      @media (max-width: 480px) {
+        .top-report-item {
+          flex-wrap: wrap;
+          gap: 6px 12px;
+        }
+        .top-report-title {
+          width: 100%;
+          order: 3;
+        }
+      }
+    </style>
+
+    <style>
+      /* Upcoming Events */
+      .event-item {
+        padding: 16px 0;
+        border-bottom: 1px solid #333;
+      }
+      .event-item:last-child {
+        border-bottom: none;
+      }
+      .event-header {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        flex-wrap: wrap;
+      }
+      .event-date {
+        font-family: var(--font-en);
+        font-size: 0.85rem;
+        color: #aaa;
+        white-space: nowrap;
+      }
+      .event-name {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #fff;
+        flex: 1;
+      }
+      .event-name a {
+        color: #fff;
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: border-color 0.2s;
+      }
+      .event-name a:hover {
+        border-bottom-color: var(--primary);
+      }
+      .event-location {
+        font-size: 0.8rem;
+        color: #999;
+        white-space: nowrap;
+      }
+      .event-location::before {
+        content: "\1F4CD";
+        margin-right: 4px;
+      }
+      .event-comment {
+        margin-top: 6px;
+        font-size: 0.85rem;
+        color: #bbb;
+        line-height: 1.5;
+      }
+      @media (max-width: 480px) {
+        .event-header {
+          gap: 6px 10px;
+        }
+        .event-name {
+          width: 100%;
+          order: 3;
+        }
+      }
+    </style>
+
+    <script>
+      // Upcoming Events
+      (function() {
+        const CMS = "https://kanoharu-report.trials-girl.com";
+        const today = new Date().toISOString().split("T")[0];
+        const evtParams = new URLSearchParams({
+          "filter[status][_eq]": "published",
+          "filter[date][_gte]": today,
+          "sort": "date",
+          "fields": "id,date,title,location,url,comment"
+        });
+
+        fetch(`${CMS}/items/events?${evtParams}`)
+          .then(r => r.json())
+          .then(json => {
+            const el = document.getElementById("upcoming-events");
+            const events = json.data || [];
+
+            if (events.length === 0) {
+              el.innerHTML = '<li style="color:#888; text-align:center; border:none;">現在予定はありません</li>';
+              return;
+            }
+
+            el.innerHTML = events.map(e => {
+              const d = new Date(e.date);
+              const dateStr = d.getFullYear() + "." +
+                String(d.getMonth()+1).padStart(2,"0") + "." +
+                String(d.getDate()).padStart(2,"0");
+              const titleHtml = e.url
+                ? `<a href="${esc(e.url)}" target="_blank" rel="noopener noreferrer">${esc(e.title)}</a>`
+                : esc(e.title);
+              return `<li class="event-item">
+                <div class="event-header">
+                  <span class="event-date">${dateStr}</span>
+                  <span class="event-name">${titleHtml}</span>
+                  ${e.location ? `<span class="event-location">${esc(e.location)}</span>` : ""}
+                </div>
+                ${e.comment ? `<p class="event-comment">${esc(e.comment)}</p>` : ""}
+              </li>`;
+            }).join("");
+          })
+          .catch(() => {
+            document.getElementById("upcoming-events").innerHTML =
+              '<li style="color:#888; text-align:center; border:none;">読み込みに失敗しました</li>';
+          });
+
+        function esc(s) {
+          if (!s) return "";
+          const d = document.createElement("div");
+          d.textContent = s;
+          return d.innerHTML;
+        }
+      })();
+    </script>
+
+    <script>
+      // Activity Reports
+      (function() {
+        const CMS = "https://kanoharu-report.trials-girl.com";
+        const params = new URLSearchParams({
+          "filter[status][_eq]": "published",
+          "filter[date][_gte]": "2026-01-01",
+          "filter[date][_lte]": "2026-12-31",
+          "sort": "-date",
+          "fields": "id,date,title,rider,result"
+        });
+
+        fetch(`${CMS}/items/reports?${params}`)
+          .then(r => r.json())
+          .then(json => {
+            const list = document.getElementById("top-reports-list");
+            const loading = document.getElementById("top-reports-loading");
+            loading.hidden = true;
+
+            const reports = json.data || [];
+            if (reports.length === 0) {
+              list.innerHTML = '<p style="text-align:center;color:#999;">レポートはまだありません。</p>';
+              return;
+            }
+
+            list.innerHTML = reports.map(r => {
+              const d = new Date(r.date);
+              const dateStr = d.getFullYear() + "." +
+                String(d.getMonth()+1).padStart(2,"0") + "." +
+                String(d.getDate()).padStart(2,"0");
+              const riders = { haruka:"HARUKA", kanoka:"KANOKA", both:"SISTERS" };
+              const riderLabel = riders[r.rider] || r.rider;
+              return `<a href="reports/detail.html?id=${r.id}" class="top-report-item">
+                <span class="top-report-date">${dateStr}</span>
+                <span class="top-report-rider ${r.rider}">${riderLabel}</span>
+                <span class="top-report-title">${esc(r.title)}</span>
+                ${r.result ? `<span class="top-report-result">${esc(r.result)}</span>` : ""}
+              </a>`;
+            }).join("");
+          })
+          .catch(() => {
+            document.getElementById("top-reports-loading").innerHTML =
+              '<p style="color:#999;text-align:center;">レポートの読み込みに失敗しました。</p>';
+          });
+
+        function esc(s) {
+          if (!s) return "";
+          const d = document.createElement("div");
+          d.textContent = s;
+          return d.innerHTML;
+        }
+      })();
+    </script>
   </body>
 </html>
