@@ -578,6 +578,8 @@ body {
   color: #fff;
   border: none;
   position: relative;
+  height: 700px;
+  overflow-y: auto;
 }
 
 .schedule-h3 {
