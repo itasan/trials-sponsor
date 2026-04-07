@@ -151,7 +151,7 @@
             `<h3 class="links-title">RELATED LINKS</h3>` +
             `<a href="${escapeAttr(r.url)}" class="detail-link" target="_blank" rel="noopener noreferrer">` +
             `<span class="detail-link-icon">&#x1F517;</span>` +
-            `<span class="detail-link-url">${escapeHtml(r.url)}</span>` +
+            `<span class="detail-link-url">${escapeAttr(r.url)}</span>` +
             `<span class="detail-link-arrow">&rarr;</span>` +
             `</a>`;
           linksEl.hidden = false;
