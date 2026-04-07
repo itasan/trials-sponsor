@@ -4,6 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>レポート | 板谷姉妹 自転車トライアル競技</title>
+
+    <!-- OGP -->
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="板谷姉妹 自転車トライアル競技" />
+    <meta property="og:title" id="og-title" content="活動レポート | 板谷姉妹 自転車トライアル競技" />
+    <meta property="og:description" id="og-description" content="自転車トライアル競技 板谷姉妹の大会結果やイベント参加の記録" />
+    <meta property="og:image" id="og-image" content="https://sponsor.trials-girl.com/images/haruka.jpg" />
+    <meta property="og:url" id="og-url" content="https://sponsor.trials-girl.com/reports/detail.html" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" id="tw-title" content="活動レポート | 板谷姉妹 自転車トライアル競技" />
+    <meta name="twitter:description" id="tw-description" content="自転車トライアル競技 板谷姉妹の大会結果やイベント参加の記録" />
+    <meta name="twitter:image" id="tw-image" content="https://sponsor.trials-girl.com/images/haruka.jpg" />
+
     <link rel="stylesheet" href="../style.css" />
     <link rel="stylesheet" href="reports.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -111,8 +124,23 @@
       }
 
       function renderDetail(r) {
-        // Title
-        document.title = `${r.title} | 活動レポート`;
+        // Title & OGP
+        const pageTitle = `${r.title} | 活動レポート`;
+        const pageDesc = r.summary || `${r.title}（${r.location || ""}）のレポート`;
+        const pageUrl = window.location.href;
+        const pageImage = r.cover_image
+          ? `${CMS_URL}/assets/${r.cover_image}?width=1200&height=630&fit=cover`
+          : "https://sponsor.trials-girl.com/images/haruka.jpg";
+
+        document.title = pageTitle;
+        document.getElementById("og-title").setAttribute("content", pageTitle);
+        document.getElementById("og-description").setAttribute("content", pageDesc);
+        document.getElementById("og-image").setAttribute("content", pageImage);
+        document.getElementById("og-url").setAttribute("content", pageUrl);
+        document.getElementById("tw-title").setAttribute("content", pageTitle);
+        document.getElementById("tw-description").setAttribute("content", pageDesc);
+        document.getElementById("tw-image").setAttribute("content", pageImage);
+
         document.getElementById("detail-title").textContent = r.title;
 
         // Rider
