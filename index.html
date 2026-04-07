@@ -330,6 +330,11 @@
       .event-name a:hover {
         border-bottom-color: var(--primary);
       }
+      .event-link-icon {
+        font-size: 0.75rem;
+        margin-left: 6px;
+        opacity: 0.6;
+      }
       .event-comment {
         margin-top: 4px;
         font-size: 0.85rem;
@@ -374,7 +379,7 @@
                   <span class="event-date">${dateStr}</span>
                   ${e.location ? `<span class="event-location">${esc(e.location)}</span>` : ""}
                 </div>
-                <div class="event-name">${titleHtml}</div>
+                <div class="event-name">${titleHtml}${e.url ? ' <span class="event-link-icon">&#x1F517;</span>' : ''}</div>
                 ${e.comment ? `<p class="event-comment">${esc(e.comment)}</p>` : ""}
               </li>`;
             }).join("");
