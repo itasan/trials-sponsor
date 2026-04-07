@@ -89,7 +89,7 @@
         }
 
         try {
-          const fields = "id,date,title,location,rider,result,body,url,cover_image,gallery.directus_files_id";
+          const fields = "id,date,title,location,rider,result,body,url,cover_image,gallery.*";
           const res = await fetch(
             `${CMS_URL}/items/${COLLECTION}/${id}?fields=${fields}`
           );
